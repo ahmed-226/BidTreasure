@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';  
 import {
+  Gavel,
   Clock,
+  Target,
+  DollarSign,
   TrendingUp,
-  TrendingDown,
+  TrendingDown,  
   AlertCircle,
   CheckCircle,
-  Eye,
-  Filter,
   Search,
-  Calendar,
-  Gavel,
   Bell,
-  DollarSign,
-  History,
-  Target,
-  ChevronDown,
-  ChevronUp,
-  ExternalLink,
-  RefreshCw,
   Bookmark,
+  Eye,
+  Calendar,
   Timer,
+  RefreshCw,
+  History,
+  ChevronUp,
+  ChevronDown,
   Users
 } from 'lucide-react';
 

@@ -326,7 +326,11 @@ const Homepage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {trendingItems.map((item) => (
-              <div key={item.id} className="card overflow-hidden hover:shadow-lg transition-all duration-300">
+              <Link 
+                key={item.id} 
+                to={`/auction/${item.id}`}
+                className="card overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+              >
                 <div className="relative">
                   <img
                     src={item.image}
@@ -336,9 +340,19 @@ const Homepage = () => {
                   <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
                     HOT
                   </div>
+                  <button 
+                    className="absolute top-2 right-2 bg-white/90 p-1 rounded-full hover:bg-white transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault(); 
+                      e.stopPropagation();
+                      
+                    }}
+                  >
+                    <Heart className="h-4 w-4 text-secondary-600" />
+                  </button>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-secondary-900 mb-2 line-clamp-2">
+                  <h3 className="font-semibold text-secondary-900 mb-2 line-clamp-2 hover:text-primary-600 transition-colors">
                     {item.title}
                   </h3>
                   <div className="space-y-2">
@@ -354,8 +368,14 @@ const Homepage = () => {
                       {item.timeLeft} left
                     </div>
                   </div>
+                  {/* Hover overlay for better UX */}
+                  <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="text-xs text-gray-500 text-center">
+                      Click to view details
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

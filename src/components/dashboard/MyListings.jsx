@@ -1,24 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';  
 import {
-  Gavel,
+  Package,  
+  Plus,     
+  Edit,     
+  Eye,
   Clock,
-  Target,
   DollarSign,
+  Users,
+  Calendar,
+  MoreHorizontal,
   TrendingUp,
   AlertCircle,
   CheckCircle,
   Search,
-  Bell,
-  Bookmark,
-  Eye,
-  Calendar,
-  Timer,
-  RefreshCw,
-  History,  
-  ChevronUp,  
-  ChevronDown,  
-  Users
+  Filter
 } from 'lucide-react';
 import CreateListingModal from './CreateListingModal';
 
