@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Package, 
-  Plus, 
-  Edit, 
-  Eye, 
-  Clock, 
+import { Link } from 'react-router-dom';  
+import {
+  Gavel,
+  Clock,
+  Target,
   DollarSign,
-  Users,
-  Calendar,
-  MoreHorizontal,
   TrendingUp,
   AlertCircle,
   CheckCircle,
   Search,
-  Filter
+  Bell,
+  Bookmark,
+  Eye,
+  Calendar,
+  Timer,
+  RefreshCw,
+  History,  
+  ChevronUp,  
+  ChevronDown,  
+  Users
 } from 'lucide-react';
 import CreateListingModal from './CreateListingModal';
 
@@ -25,7 +30,7 @@ const MyListings = ({ formatPrice }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('newest');
 
-  
+
   const mockListings = [
     {
       id: 1,
@@ -80,7 +85,7 @@ const MyListings = ({ formatPrice }) => {
   ];
 
   useEffect(() => {
-    
+
     setTimeout(() => {
       setListings(mockListings);
       setIsLoading(false);
@@ -100,7 +105,7 @@ const MyListings = ({ formatPrice }) => {
       createdDate: new Date().toISOString().split('T')[0],
       reserveMet: false
     };
-    
+
     setListings(prev => [newListing, ...prev]);
     console.log('New listing created:', newListing);
   };
@@ -108,7 +113,7 @@ const MyListings = ({ formatPrice }) => {
   const filteredListings = listings.filter(listing => {
     const matchesFilter = activeFilter === 'all' || listing.status === activeFilter;
     const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         listing.category.toLowerCase().includes(searchQuery.toLowerCase());
+      listing.category.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
@@ -122,8 +127,8 @@ const MyListings = ({ formatPrice }) => {
   const getStatusIcon = (status, listing) => {
     switch (status) {
       case 'active':
-        return listing.bidsCount > 0 ? 
-          <TrendingUp className="h-4 w-4 text-green-500" /> : 
+        return listing.bidsCount > 0 ?
+          <TrendingUp className="h-4 w-4 text-green-500" /> :
           <Clock className="h-4 w-4 text-blue-500" />;
       case 'sold':
         return <CheckCircle className="h-4 w-4 text-green-500" />;
@@ -163,7 +168,7 @@ const MyListings = ({ formatPrice }) => {
           <h2 className="text-2xl font-bold text-gray-900">My Listings</h2>
           <p className="text-gray-600">Manage your active and past listings</p>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -175,7 +180,7 @@ const MyListings = ({ formatPrice }) => {
               className="input-field pl-10 w-full sm:w-64"
             />
           </div>
-          
+
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
@@ -187,8 +192,8 @@ const MyListings = ({ formatPrice }) => {
             <option value="most_bids">Most Bids</option>
             <option value="most_views">Most Views</option>
           </select>
-          
-          <button 
+
+          <button
             onClick={() => setShowCreateModal(true)}
             className="btn-primary flex items-center justify-center whitespace-nowrap"
           >
@@ -205,18 +210,16 @@ const MyListings = ({ formatPrice }) => {
             <button
               key={option.value}
               onClick={() => setActiveFilter(option.value)}
-              className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeFilter === option.value
+              className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeFilter === option.value
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               {option.label}
-              <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
-                activeFilter === option.value 
-                  ? 'bg-blue-100 text-blue-600' 
+              <span className={`ml-2 px-2 py-1 text-xs rounded-full ${activeFilter === option.value
+                  ? 'bg-blue-100 text-blue-600'
                   : 'bg-gray-100 text-gray-500'
-              }`}>
+                }`}>
                 {option.count}
               </span>
             </button>
@@ -233,12 +236,12 @@ const MyListings = ({ formatPrice }) => {
             {searchQuery ? 'No listings found' : 'No listings yet'}
           </h3>
           <p className="text-gray-500 mb-4">
-            {searchQuery 
+            {searchQuery
               ? 'Try adjusting your search terms'
               : 'Start selling by creating your first listing'}
           </p>
           {!searchQuery && (
-            <button 
+            <button
               onClick={() => setShowCreateModal(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center mx-auto"
             >
@@ -329,9 +332,8 @@ const MyListings = ({ formatPrice }) => {
                   </div>
                   <div className="text-center">
                     <p className="text-xs text-gray-500 mb-1">Time Left</p>
-                    <p className={`font-semibold text-lg ${
-                      listing.timeLeft === 'Ended' ? 'text-gray-500' : 'text-red-600'
-                    }`}>
+                    <p className={`font-semibold text-lg ${listing.timeLeft === 'Ended' ? 'text-gray-500' : 'text-red-600'
+                      }`}>
                       {listing.timeLeft}
                     </p>
                   </div>
@@ -339,10 +341,13 @@ const MyListings = ({ formatPrice }) => {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2">
-                  <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center text-sm">
+                  <Link
+                    to={`/auction/${listing.id}`}
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center text-sm"
+                  >
                     <Eye className="h-4 w-4 mr-1" />
                     View Listing
-                  </button>
+                  </Link>
                   {listing.status === 'active' && (
                     <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center text-sm">
                       <Edit className="h-4 w-4 mr-1" />
@@ -359,11 +364,10 @@ const MyListings = ({ formatPrice }) => {
                 {(listing.reservePrice || listing.buyItNow) && (
                   <div className="flex flex-wrap gap-2">
                     {listing.reservePrice && (
-                      <span className={`text-xs px-3 py-1 rounded-full ${
-                        listing.reserveMet 
-                          ? 'bg-green-100 text-green-700' 
+                      <span className={`text-xs px-3 py-1 rounded-full ${listing.reserveMet
+                          ? 'bg-green-100 text-green-700'
                           : 'bg-yellow-100 text-yellow-700'
-                      }`}>
+                        }`}>
                         Reserve {listing.reserveMet ? 'Met' : 'Not Met'} ({formatPrice(listing.reservePrice)})
                       </span>
                     )}

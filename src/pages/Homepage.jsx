@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; 
 import { 
   Clock, 
   Users, 
@@ -291,10 +292,11 @@ const Homepage = () => {
                         {auction.timeLeft}
                       </span>
                     </div>
-                    <button className="w-full btn-primary">
-                      Place Bid
-                    </button>
-                  </div>
+<button className="w-full btn-primary">
+                      <Link to={`/auction/${auction.id}`} className="block w-full">
+                        Place Bid
+                      </Link>
+                    </button>                  </div>
                 </div>
               </div>
             ))}

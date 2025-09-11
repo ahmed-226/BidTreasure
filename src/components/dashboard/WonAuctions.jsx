@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  CheckCircle, 
-  Clock, 
-  CreditCard, 
-  Truck, 
-  Star, 
+import { Link } from 'react-router-dom'; 
+import {
+  CheckCircle,
+  Clock,
+  CreditCard,
+  Truck,
+  Star,
   Download,
   AlertTriangle,
   Package,
@@ -218,18 +219,16 @@ const WonAuctions = ({ formatPrice }) => {
             <button
               key={option.value}
               onClick={() => setActiveFilter(option.value)}
-              className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeFilter === option.value
+              className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeFilter === option.value
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               {option.label}
-              <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
-                activeFilter === option.value 
-                  ? 'bg-blue-100 text-blue-600' 
+              <span className={`ml-2 px-2 py-1 text-xs rounded-full ${activeFilter === option.value
+                  ? 'bg-blue-100 text-blue-600'
                   : 'bg-gray-100 text-gray-500'
-              }`}>
+                }`}>
                 {option.count}
               </span>
             </button>
@@ -244,8 +243,8 @@ const WonAuctions = ({ formatPrice }) => {
           <CheckCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No won auctions found</h3>
           <p className="text-gray-500">
-            {activeFilter === 'all' 
-              ? "You haven't won any auctions yet." 
+            {activeFilter === 'all'
+              ? "You haven't won any auctions yet."
               : `No auctions match the "${activeFilter.replace('_', ' ')}" filter.`}
           </p>
         </div>
@@ -304,7 +303,7 @@ const WonAuctions = ({ formatPrice }) => {
                   </div>
 
                   {/* Status Badges */}
-                  <div className="flex-shrink-0 space-y-2 space-x-2">
+                  <div className="flex-shrink-0 flex flex-col gap-3">  {/* Changed from space-y-2 space-x-2 to flex flex-col gap-3 */}
                     <div className={`inline-flex items-center px-3 py-2 rounded-lg border font-medium text-sm ${getPaymentStatusColor(auction.paymentStatus)}`}>
                       {auction.paymentStatus === 'paid' ? (
                         <CheckCircle className="h-4 w-4 mr-2" />
@@ -357,7 +356,7 @@ const WonAuctions = ({ formatPrice }) => {
                     Contact Seller
                   </button>
                   {auction.canReview && (
-                    <button 
+                    <button
                       onClick={() => {
                         setSelectedAuction(auction);
                         setShowReviewModal(true);
@@ -384,7 +383,7 @@ const WonAuctions = ({ formatPrice }) => {
                       <div className="flex-1">
                         <p className="font-medium text-yellow-800">Payment Required</p>
                         <p className="text-sm text-yellow-700 mt-1">
-                          Please complete payment by {new Date(auction.paymentDueDate).toLocaleDateString()} 
+                          Please complete payment by {new Date(auction.paymentDueDate).toLocaleDateString()}
                           ({auction.daysLeft} days remaining)
                         </p>
                         {auction.paymentReminders > 0 && (
@@ -513,7 +512,7 @@ const WonAuctions = ({ formatPrice }) => {
               placeholder="Share your feedback..."
             ></textarea>
             <div className="flex space-x-3">
-              <button 
+              <button
                 onClick={() => setShowReviewModal(false)}
                 className="btn-secondary flex-1"
               >

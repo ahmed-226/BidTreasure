@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Clock, 
-  TrendingUp, 
-  TrendingDown, 
-  AlertCircle, 
+import {
+  Clock,
+  TrendingUp,
+  TrendingDown,
+  AlertCircle,
   CheckCircle,
   Eye,
   Filter,
@@ -20,7 +20,7 @@ import {
   RefreshCw,
   Bookmark,
   Timer,
-  Users 
+  Users
 } from 'lucide-react';
 
 const MyBids = ({ formatPrice }) => {
@@ -35,7 +35,7 @@ const MyBids = ({ formatPrice }) => {
   const [expandedBid, setExpandedBid] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  
+
   const mockBids = [
     {
       id: 1,
@@ -102,11 +102,11 @@ const MyBids = ({ formatPrice }) => {
       estimatedShipping: 15,
       location: "California, CA"
     },
-    
+
   ];
 
   useEffect(() => {
-    
+
     setTimeout(() => {
       setBids(mockBids);
       setFilteredBids(mockBids);
@@ -114,16 +114,16 @@ const MyBids = ({ formatPrice }) => {
     }, 1000);
   }, []);
 
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setBids(prevBids => 
+      setBids(prevBids =>
         prevBids.map(bid => {
           if (bid.status === 'winning' || bid.status === 'outbid') {
-            
+
             const newCurrentBid = bid.currentBid + Math.floor(Math.random() * 100);
             const newStatus = newCurrentBid > bid.myBid ? 'outbid' : 'winning';
-            
+
             return {
               ...bid,
               currentBid: newCurrentBid,
@@ -134,14 +134,14 @@ const MyBids = ({ formatPrice }) => {
           return bid;
         })
       );
-    }, 30000); 
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    
+
     setTimeout(() => {
       setRefreshing(false);
     }, 1000);
@@ -152,16 +152,16 @@ const MyBids = ({ formatPrice }) => {
       prevBids.map(bid =>
         bid.id === bidId
           ? {
-              ...bid,
-              myBid: amount,
-              maxBid: amount,
-              status: amount > bid.currentBid ? 'winning' : bid.status,
-              bidTime: 'Just now',
-              bidHistory: [
-                ...bid.bidHistory,
-                { amount, time: 'Just now', isMyBid: true, bidder: 'You' }
-              ]
-            }
+            ...bid,
+            myBid: amount,
+            maxBid: amount,
+            status: amount > bid.currentBid ? 'winning' : bid.status,
+            bidTime: 'Just now',
+            bidHistory: [
+              ...bid.bidHistory,
+              { amount, time: 'Just now', isMyBid: true, bidder: 'You' }
+            ]
+          }
           : bid
       )
     );
@@ -180,11 +180,11 @@ const MyBids = ({ formatPrice }) => {
       prevBids.map(bid =>
         bid.id === bidId
           ? {
-              ...bid,
-              notifications: bid.notifications.map((notif, index) =>
-                index === notificationIndex ? { ...notif, read: true } : notif
-              )
-            }
+            ...bid,
+            notifications: bid.notifications.map((notif, index) =>
+              index === notificationIndex ? { ...notif, read: true } : notif
+            )
+          }
           : bid
       )
     );
@@ -193,33 +193,33 @@ const MyBids = ({ formatPrice }) => {
   const getTimeLeftColor = (timeLeft) => {
     if (timeLeft === 'Ended') return 'text-gray-500';
     if (timeLeft.includes('m') && !timeLeft.includes('h') && !timeLeft.includes('d')) {
-      return 'text-red-600 font-bold animate-pulse'; 
+      return 'text-red-600 font-bold animate-pulse';
     }
     if (timeLeft.includes('h') && !timeLeft.includes('d')) {
-      return 'text-orange-600'; 
+      return 'text-orange-600';
     }
     return 'text-gray-700';
   };
 
-  
+
   useEffect(() => {
     let filtered = bids;
 
-    
+
     if (activeFilter !== 'all') {
       filtered = filtered.filter(bid => bid.status === activeFilter);
     }
 
-    
+
     if (searchQuery) {
-      filtered = filtered.filter(bid => 
+      filtered = filtered.filter(bid =>
         bid.itemTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
         bid.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
         bid.seller.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    
+
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'newest':
@@ -284,7 +284,7 @@ const MyBids = ({ formatPrice }) => {
     { value: 'lost', label: 'Lost', count: bids.filter(b => b.status === 'lost').length }
   ];
 
-  const urgentNotifications = bids.flatMap(bid => 
+  const urgentNotifications = bids.flatMap(bid =>
     bid.notifications.filter(notif => notif.urgent && !notif.read)
   );
 
@@ -322,7 +322,7 @@ const MyBids = ({ formatPrice }) => {
                 </div>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => setShowNotifications(false)}
               className="text-red-400 hover:text-red-600"
             >
@@ -338,7 +338,7 @@ const MyBids = ({ formatPrice }) => {
           <h2 className="text-2xl font-bold text-gray-900">My Bids</h2>
           <p className="text-gray-600">Track all your current and past bidding activity</p>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -350,7 +350,7 @@ const MyBids = ({ formatPrice }) => {
               className="input-field pl-10 w-full sm:w-64"
             />
           </div>
-          
+
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
@@ -388,7 +388,7 @@ const MyBids = ({ formatPrice }) => {
             <Target className="h-8 w-8 text-blue-600" />
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -400,7 +400,7 @@ const MyBids = ({ formatPrice }) => {
             <TrendingUp className="h-8 w-8 text-green-600" />
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -412,7 +412,7 @@ const MyBids = ({ formatPrice }) => {
             <DollarSign className="h-8 w-8 text-purple-600" />
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -433,18 +433,16 @@ const MyBids = ({ formatPrice }) => {
             <button
               key={option.value}
               onClick={() => setActiveFilter(option.value)}
-              className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeFilter === option.value
+              className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeFilter === option.value
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               {option.label}
-              <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
-                activeFilter === option.value 
-                  ? 'bg-blue-100 text-blue-600' 
+              <span className={`ml-2 px-2 py-1 text-xs rounded-full ${activeFilter === option.value
+                  ? 'bg-blue-100 text-blue-600'
                   : 'bg-gray-100 text-gray-500'
-              }`}>
+                }`}>
                 {option.count}
               </span>
             </button>
@@ -458,8 +456,8 @@ const MyBids = ({ formatPrice }) => {
           <Gavel className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No bids found</h3>
           <p className="text-gray-500">
-            {activeFilter === 'all' 
-              ? "You haven't placed any bids yet." 
+            {activeFilter === 'all'
+              ? "You haven't placed any bids yet."
               : `No bids with status "${activeFilter}" found.`}
           </p>
         </div>
@@ -541,9 +539,8 @@ const MyBids = ({ formatPrice }) => {
                   </div>
                   <div className="text-center">
                     <p className="text-xs text-gray-500 mb-1">Leading Bid</p>
-                    <p className={`font-semibold text-lg ${
-                      bid.currentBid > bid.myBid ? 'text-red-600' : 'text-green-600'
-                    }`}>
+                    <p className={`font-semibold text-lg ${bid.currentBid > bid.myBid ? 'text-red-600' : 'text-green-600'
+                      }`}>
                       {formatPrice(bid.currentBid)}
                     </p>
                   </div>
@@ -561,11 +558,14 @@ const MyBids = ({ formatPrice }) => {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2">
-                  <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center text-sm">
+                  <Link
+                    to={`/auction/${bid.id}`}
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center text-sm"
+                  >
                     <Eye className="h-4 w-4 mr-1" />
                     View
-                  </button>
-                  <button 
+                  </Link>
+                  <button
                     onClick={() => toggleBidHistory(bid.id)}
                     className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center text-sm"
                   >
@@ -574,22 +574,21 @@ const MyBids = ({ formatPrice }) => {
                   </button>
                   <button
                     onClick={() => toggleWatchlist(bid.id)}
-                    className={`bg-gray-100 hover:bg-gray-200 font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center text-sm ${
-                      bid.isWatched ? 'text-red-600' : 'text-gray-700'
-                    }`}
+                    className={`bg-gray-100 hover:bg-gray-200 font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center text-sm ${bid.isWatched ? 'text-red-600' : 'text-gray-700'
+                      }`}
                   >
                     <Bookmark className={`h-4 w-4 mr-1 ${bid.isWatched ? 'fill-current' : ''}`} />
                     {bid.isWatched ? 'Unwatch' : 'Watch'}
                   </button>
                   {bid.status === 'outbid' && bid.timeLeft !== 'Ended' && (
-                    <button 
+                    <button
                       onClick={() => setExpandedBid(expandedBid === bid.id ? null : bid.id)}
                       className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center text-sm"
                     >
                       <Gavel className="h-4 w-4 mr-1" />
                       Quick Bid
-                      {expandedBid === bid.id ? 
-                        <ChevronUp className="h-4 w-4 ml-1" /> : 
+                      {expandedBid === bid.id ?
+                        <ChevronUp className="h-4 w-4 ml-1" /> :
                         <ChevronDown className="h-4 w-4 ml-1" />
                       }
                     </button>
@@ -624,7 +623,7 @@ const MyBids = ({ formatPrice }) => {
                       </button>
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
-                      Minimum increment: {formatPrice(bid.bidIncrement)} | 
+                      Minimum increment: {formatPrice(bid.bidIncrement)} |
                       Estimated shipping: {formatPrice(bid.estimatedShipping)}
                     </p>
                   </div>
@@ -636,13 +635,11 @@ const MyBids = ({ formatPrice }) => {
                     <h4 className="font-medium text-gray-900 mb-4">Bid Timeline</h4>
                     <div className="space-y-3 max-h-60 overflow-y-auto">
                       {bid.bidHistory.map((historyItem, index) => (
-                        <div key={index} className={`flex items-center justify-between p-3 rounded-lg ${
-                          historyItem.isMyBid ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'
-                        }`}>
+                        <div key={index} className={`flex items-center justify-between p-3 rounded-lg ${historyItem.isMyBid ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'
+                          }`}>
                           <div className="flex items-center">
-                            <div className={`p-1 rounded-full mr-3 ${
-                              historyItem.isMyBid ? 'bg-blue-500' : 'bg-gray-400'
-                            }`}>
+                            <div className={`p-1 rounded-full mr-3 ${historyItem.isMyBid ? 'bg-blue-500' : 'bg-gray-400'
+                              }`}>
                               <Target className="h-3 w-3 text-white" />
                             </div>
                             <div>
@@ -669,11 +666,11 @@ const MyBids = ({ formatPrice }) => {
                       <div className="flex-1">
                         <p className="font-medium text-red-800">You've been outbid!</p>
                         <p className="text-sm text-red-700 mt-1">
-                          Current bid is {formatPrice(bid.currentBid)}. 
+                          Current bid is {formatPrice(bid.currentBid)}.
                           {bid.reserveMet ? ' Reserve met.' : ` Reserve (${formatPrice(bid.reservePrice)}) ${bid.reserveMet ? 'met' : 'not met'}.`}
                         </p>
                         <div className="mt-3 flex flex-wrap gap-2">
-                          <button 
+                          <button
                             onClick={() => handleQuickBid(bid.id, bid.currentBid + bid.bidIncrement)}
                             className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-sm"
                           >

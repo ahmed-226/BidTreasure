@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Heart, 
-  Eye, 
-  Clock, 
-  DollarSign, 
-  Gavel, 
-  Search, 
+import { Link } from 'react-router-dom'; 
+import {
+  Heart,
+  Eye,
+  Clock,
+  DollarSign,
+  Gavel,
+  Search,
   Filter,
   Grid3X3,
   List,
@@ -18,20 +19,20 @@ import {
   Plus,
   Trash2,
   RefreshCw,
-  MapPin, 
-  Timer   
+  MapPin,
+  Timer
 } from 'lucide-react';
 
 const Watchlist = ({ formatPrice }) => {
   const [watchlistItems, setWatchlistItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('grid'); 
+  const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sortBy, setSortBy] = useState('ending_soon');
   const [showNotifications, setShowNotifications] = useState(true);
 
-  
+
   const mockWatchlistItems = [
     {
       id: 1,
@@ -113,19 +114,19 @@ const Watchlist = ({ formatPrice }) => {
   const categories = ['all', 'Electronics', 'Vehicles', 'Collectibles', 'Art', 'Fashion', 'Jewelry'];
 
   useEffect(() => {
-    
+
     setTimeout(() => {
       setWatchlistItems(mockWatchlistItems);
       setIsLoading(false);
     }, 1000);
   }, []);
 
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setWatchlistItems(prevItems => 
+      setWatchlistItems(prevItems =>
         prevItems.map(item => {
-          if (Math.random() > 0.7) { 
+          if (Math.random() > 0.7) {
             const newBid = item.currentBid + Math.floor(Math.random() * 500) + 50;
             const change = newBid - item.currentBid;
             return {
@@ -141,14 +142,14 @@ const Watchlist = ({ formatPrice }) => {
           return item;
         })
       );
-    }, 15000); 
+    }, 15000);
 
     return () => clearInterval(interval);
   }, []);
 
   const filteredItems = watchlistItems.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.category.toLowerCase().includes(searchQuery.toLowerCase());
+      item.category.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {
@@ -209,7 +210,7 @@ const Watchlist = ({ formatPrice }) => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900">My Watchlist</h2>
           <p className="text-gray-600">
-            Keep track of {watchlistItems.length} favorite items 
+            Keep track of {watchlistItems.length} favorite items
             {newActivityCount > 0 && (
               <span className="ml-2 px-2 py-1 bg-red-100 text-red-600 text-sm rounded-full">
                 {newActivityCount} new updates
@@ -217,14 +218,14 @@ const Watchlist = ({ formatPrice }) => {
             )}
           </p>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <button className="btn-secondary flex items-center">
             <Plus className="h-4 w-4 mr-2" />
             Add Item
           </button>
           {watchlistItems.length > 0 && (
-            <button 
+            <button
               onClick={clearWatchlist}
               className="btn-outline text-red-600 border-red-200 hover:bg-red-50"
             >
@@ -247,7 +248,7 @@ const Watchlist = ({ formatPrice }) => {
               className="input-field pl-10 w-full"
             />
           </div>
-          
+
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
@@ -259,7 +260,7 @@ const Watchlist = ({ formatPrice }) => {
               </option>
             ))}
           </select>
-          
+
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
@@ -273,7 +274,7 @@ const Watchlist = ({ formatPrice }) => {
             <option value="most_watched">Most Watched</option>
           </select>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setViewMode('grid')}
@@ -298,7 +299,7 @@ const Watchlist = ({ formatPrice }) => {
             {watchlistItems.length === 0 ? 'No items in watchlist' : 'No matching items'}
           </h3>
           <p className="text-gray-500 mb-4">
-            {watchlistItems.length === 0 
+            {watchlistItems.length === 0
               ? 'Add items to your watchlist to track them here'
               : 'Try adjusting your search or filter criteria'}
           </p>
@@ -307,18 +308,16 @@ const Watchlist = ({ formatPrice }) => {
           </button>
         </div>
       ) : (
-        <div className={viewMode === 'grid' 
-          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
+        <div className={viewMode === 'grid'
+          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           : "space-y-4"
         }>
           {filteredItems.map((item) => (
-            <div key={item.id} className={`card ${
-              viewMode === 'grid' ? 'p-4' : 'p-6'
-            } hover:shadow-lg transition-all duration-200 ${
-              item.hasNewActivity ? 'ring-2 ring-blue-200' : ''
-            }`}>
+            <div key={item.id} className={`card ${viewMode === 'grid' ? 'p-4' : 'p-6'
+              } hover:shadow-lg transition-all duration-200 ${item.hasNewActivity ? 'ring-2 ring-blue-200' : ''
+              }`}>
               {viewMode === 'grid' ? (
-                
+
                 <>
                   <div className="relative mb-4">
                     <img
@@ -343,9 +342,9 @@ const Watchlist = ({ formatPrice }) => {
                       <Heart className="h-5 w-5 text-red-500 fill-current" />
                     </button>
                   </div>
-                  
+
                   <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{item.title}</h3>
-                  
+
                   <div className="space-y-2 text-sm text-gray-600 mb-4">
                     <div className="flex justify-between">
                       <span>Current Bid:</span>
@@ -377,7 +376,7 @@ const Watchlist = ({ formatPrice }) => {
                       </span>
                     </div>
                   </div>
-                  
+
                   {item.priceChange > 0 && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-4">
                       <p className="text-xs text-green-700">
@@ -385,24 +384,27 @@ const Watchlist = ({ formatPrice }) => {
                       </p>
                     </div>
                   )}
-                  
-                <div className="flex space-x-2">
-                        <button className="btn-primary flex-1 text-sm">
-                            <Gavel className="h-4 w-4 mr-1" />
-                            Bid Now
-                        </button>
-                        <button className="btn-secondary text-sm">
-                            <Eye className="h-4 w-4" />
-                        </button>
-                        {item.buyItNow && (
-                                <button className="btn-secondary text-sm whitespace-nowrap">
-                                Buy {formatPrice(item.buyItNow)}
-                                </button>
-                            )}
-                </div>
+
+                  <div className="flex space-x-2">
+                    <Link
+                      to={`/auction/${item.id}`}
+                      className="btn-primary flex-1 text-sm"
+                    >
+                      <Gavel className="h-4 w-4 mr-1" />
+                      Bid Now
+                    </Link>
+                    <button className="btn-secondary text-sm">
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    {item.buyItNow && (
+                      <button className="btn-secondary text-sm whitespace-nowrap">
+                        Buy {formatPrice(item.buyItNow)}
+                      </button>
+                    )}
+                  </div>
                 </>
               ) : (
-                
+
                 <div className="flex items-center space-x-4">
                   <div className="relative">
                     <img
@@ -414,7 +416,7 @@ const Watchlist = ({ formatPrice }) => {
                       <div className="absolute -top-1 -right-1 bg-blue-500 text-white rounded-full w-3 h-3"></div>
                     )}
                   </div>
-                  
+
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 mb-1">{item.title}</h3>
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
@@ -428,7 +430,7 @@ const Watchlist = ({ formatPrice }) => {
                       <span>{item.condition}</span>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-4 gap-4 text-center">
                     <div>
                       <p className="text-sm text-gray-500">Current Bid</p>
@@ -449,22 +451,22 @@ const Watchlist = ({ formatPrice }) => {
                       <p className="font-semibold">{item.watchers}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex space-x-2">
                     <button className="btn-primary text-sm">
-                        <Gavel className="h-4 w-4 mr-1" />
-                        Bid
+                      <Gavel className="h-4 w-4 mr-1" />
+                      Bid
                     </button>
                     <button className="btn-secondary text-sm">
-                        <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4" />
                     </button>
                     <button
-                        onClick={() => removeFromWatchlist(item.id)}
-                        className="btn-secondary text-sm text-red-600"
+                      onClick={() => removeFromWatchlist(item.id)}
+                      className="btn-secondary text-sm text-red-600"
                     >
-                        <Heart className="h-4 w-4 fill-current" />
+                      <Heart className="h-4 w-4 fill-current" />
                     </button>
-                    </div>
+                  </div>
                 </div>
               )}
             </div>

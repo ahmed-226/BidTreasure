@@ -4,8 +4,9 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Homepage from './pages/Homepage';
 import SearchResults from './pages/SearchResults';
-import UserProfile from './pages/UserProfile';
 import UserDashboard from './pages/UserDashboard';
+import UserProfile from './pages/UserProfile';
+import AuctionDetails from './pages/AuctionDetails'; 
 import AuthContainer from './components/auth/AuthContainer';
 
 function App() {
@@ -14,36 +15,29 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkUserSession = () => {
-      const savedUser = localStorage.getItem('bidtreasure_user');
-      if (savedUser) {
-        try {
-          setUser(JSON.parse(savedUser));
-        } catch (error) {
-          console.error('Error parsing saved user:', error);
-          localStorage.removeItem('bidtreasure_user');
-        }
+    const savedUser = localStorage.getItem('bidtreasure_user');
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error('Error parsing saved user:', error);
+        localStorage.removeItem('bidtreasure_user');
       }
-      setIsLoading(false);
-    };
-
-    checkUserSession();
+    }
+    setIsLoading(false);
   }, []);
 
   const handleAuthSuccess = ({ type, data }) => {
     const userData = {
-      id: Date.now(), 
-      firstName: data.firstName || data.email.split('@')[0],
-      lastName: data.lastName || '',
+      id: Date.now(),
       email: data.email,
-      phone: data.phone || '',
-      bio: '',
-      location: '',
-      website: '',
-      avatar: null,
-      isVerified: false
+      firstName: data.firstName || data.name?.split(' ')[0] || 'User',
+      lastName: data.lastName || data.name?.split(' ')[1] || '',
+      avatar: data.avatar || null,
+      joinDate: new Date().toISOString().split('T')[0],
+      ...data
     };
-    
+
     setUser(userData);
     localStorage.setItem('bidtreasure_user', JSON.stringify(userData));
     setShowAuth(false);
@@ -79,40 +73,27 @@ function App() {
 
   if (showAuth) {
     return (
-      <AuthContainer 
-        onAuthSuccess={handleAuthSuccess}
+      <AuthContainer
         onClose={() => setShowAuth(false)}
+        onAuthSuccess={handleAuthSuccess}
       />
     );
   }
 
   return (
     <Router>
-      <div className="min-h-screen bg-white flex flex-col">
-        <Navbar 
+      <div className="App">
+        <Navbar
           user={user}
           onAuthClick={handleAuthClick}
           onLogout={handleLogout}
         />
         
-        <main className="flex-1">
+        <main>
           <Routes>
             <Route path="/" element={<Homepage />} />
-            <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="/search" element={<SearchResults />} />
-            
-            {/* Protected routes - redirect to home if not authenticated */}
-            <Route 
-              path="/profile" 
-              element={
-                user ? (
-                  <UserProfile user={user} onUpdateUser={handleUpdateUser} />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              } 
-            />
-            
+            <Route path="/auction/:id" element={<AuctionDetails />} />  {/* ADD THIS LINE */}
             <Route 
               path="/dashboard" 
               element={
@@ -123,12 +104,19 @@ function App() {
                 )
               } 
             />
-            
-            {/* Fallback route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route 
+              path="/profile" 
+              element={
+                user ? (
+                  <UserProfile user={user} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              } 
+            />
           </Routes>
         </main>
-        
+
         <Footer />
       </div>
     </Router>
