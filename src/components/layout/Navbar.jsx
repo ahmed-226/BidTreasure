@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Heart, Bell, Gavel, User } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Search, Menu, X, Heart, Bell, Gavel, User, Package, MessageSquare } from 'lucide-react'; 
+import { useMessaging } from '../../contexts/MessagingContext';
+
+
 
 const Navbar = ({ user, onAuthClick, onLogout }) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { unreadCount } = useMessaging();
 
   const categories = [
     'Electronics',
@@ -111,16 +115,18 @@ const Navbar = ({ user, onAuthClick, onLogout }) => {
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 <>
-                  <button 
-                    onClick={handleWatchlistClick}
+                  <Link
+                    to="/messages"
                     className="relative p-2 text-secondary-600 hover:text-primary-600 transition-colors"
-                    title="My Watchlist"
+                    title="Messages"
                   >
-                    <Heart className="h-6 w-6" />
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      3
-                    </span>
-                  </button>
+                    <MessageSquare className="h-6 w-6" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
                   <button 
                     className="relative p-2 text-secondary-600 hover:text-primary-600 transition-colors"
                     title="Notifications"
@@ -242,9 +248,13 @@ const Navbar = ({ user, onAuthClick, onLogout }) => {
                 View All
               </button>
             </div>
-            <button className="btn-primary text-sm">
+            <Link 
+              to="/sell" 
+              className="btn-primary flex items-center"
+            >
+              <Package className="h-4 w-4 mr-2" />
               Sell Your Item
-            </button>
+            </Link>
           </div>
         </div>
       </div>

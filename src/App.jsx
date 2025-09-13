@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { MessagingProvider } from './contexts/MessagingContext'; 
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Homepage from './pages/Homepage';
@@ -8,52 +9,36 @@ import UserDashboard from './pages/UserDashboard';
 import UserProfile from './pages/UserProfile';
 import AuctionDetails from './pages/AuctionDetails'; 
 import AuthContainer from './components/auth/AuthContainer';
+import SellPage from './pages/SellPage';
+import MessagesPage from './pages/MessagesPage';
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({
+    id: 'current_user',
+    firstName: 'John',
+    lastName: 'Doe',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face'
+  });
   const [showAuth, setShowAuth] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('bidtreasure_user');
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (error) {
-        console.error('Error parsing saved user:', error);
-        localStorage.removeItem('bidtreasure_user');
-      }
-    }
-    setIsLoading(false);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
   }, []);
 
   const handleAuthSuccess = ({ type, data }) => {
-    const userData = {
-      id: Date.now(),
-      email: data.email,
-      firstName: data.firstName || data.name?.split(' ')[0] || 'User',
-      lastName: data.lastName || data.name?.split(' ')[1] || '',
-      avatar: data.avatar || null,
-      joinDate: new Date().toISOString().split('T')[0],
-      ...data
-    };
-
-    setUser(userData);
-    localStorage.setItem('bidtreasure_user', JSON.stringify(userData));
+    setUser(data);
     setShowAuth(false);
-    
-    console.log(`${type === 'login' ? 'Login' : 'Registration'} successful:`, userData);
   };
 
   const handleUpdateUser = (updatedUser) => {
     setUser(updatedUser);
-    localStorage.setItem('bidtreasure_user', JSON.stringify(updatedUser));
   };
 
   const handleLogout = () => {
     setUser(null);
-    localStorage.removeItem('bidtreasure_user');
-    console.log('User logged out');
   };
 
   const handleAuthClick = () => {
@@ -62,7 +47,7 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading BidTreasure...</p>
@@ -73,27 +58,38 @@ function App() {
 
   if (showAuth) {
     return (
-      <AuthContainer
-        onClose={() => setShowAuth(false)}
+      <AuthContainer 
         onAuthSuccess={handleAuthSuccess}
+        onClose={() => setShowAuth(false)}
       />
     );
   }
 
   return (
-    <Router>
-      <div className="App">
-        <Navbar
-          user={user}
-          onAuthClick={handleAuthClick}
-          onLogout={handleLogout}
-        />
-        
-        <main>
+    <MessagingProvider> {/* Wrap everything in MessagingProvider */}
+      <Router>
+        <div className="min-h-screen bg-gray-50">
+          <Navbar 
+            user={user} 
+            onAuthClick={handleAuthClick}
+            onLogout={handleLogout}
+          />
+          
           <Routes>
             <Route path="/" element={<Homepage />} />
             <Route path="/search" element={<SearchResults />} />
-            <Route path="/auction/:id" element={<AuctionDetails />} />  {/* ADD THIS LINE */}
+            <Route path="/auction/:id" element={<AuctionDetails user={user} />} />
+            <Route path="/sell" element={<SellPage />} />
+            <Route 
+              path="/messages" 
+              element={
+                user ? (
+                  <MessagesPage user={user} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              } 
+            />
             <Route 
               path="/dashboard" 
               element={
@@ -108,18 +104,18 @@ function App() {
               path="/profile" 
               element={
                 user ? (
-                  <UserProfile user={user} />
+                  <UserProfile user={user} onUpdateUser={handleUpdateUser} />
                 ) : (
                   <Navigate to="/" replace />
                 )
               } 
             />
           </Routes>
-        </main>
-
-        <Footer />
-      </div>
-    </Router>
+          
+          <Footer />
+        </div>
+      </Router>
+    </MessagingProvider>
   );
 }
 

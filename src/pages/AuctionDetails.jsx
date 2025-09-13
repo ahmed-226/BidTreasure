@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { 
-  Clock, 
-  Heart, 
-  Eye, 
-  Share2, 
-  Flag, 
+import {
+  Clock,
+  Heart,
+  Eye,
+  Share2,
+  Flag,
   Star,
   MapPin,
   Shield,
@@ -25,8 +25,10 @@ import {
   Timer,
   CheckCircle
 } from 'lucide-react';
+import ContactSellerModal from '../components/messaging/ContactSellerModal';
+import QASection from '../components/messaging/QASection';
 
-const AuctionDetails = () => {
+const AuctionDetails = ({ user }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [auction, setAuction] = useState(null);
@@ -34,10 +36,12 @@ const AuctionDetails = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [bidAmount, setBidAmount] = useState('');
   const [maxBidAmount, setMaxBidAmount] = useState('');
-  const [isWatched, setIsWatched] = useState(false);
   const [showBidForm, setShowBidForm] = useState(false);
   const [showMaxBidForm, setShowMaxBidForm] = useState(false);
+  const [isWatched, setIsWatched] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
+  const [showContactModal, setShowContactModal] = useState(false);
+
 
   const mockAuction = {
     id: parseInt(id),
@@ -207,7 +211,7 @@ const AuctionDetails = () => {
                   alt={auction.title}
                   className="w-full h-96 object-cover rounded-lg"
                 />
-                
+
                 {/* Image Navigation */}
                 {auction.images.length > 1 && (
                   <>
@@ -232,9 +236,8 @@ const AuctionDetails = () => {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`w-3 h-3 rounded-full transition-all ${
-                        index === currentImageIndex ? 'bg-white' : 'bg-white/50'
-                      }`}
+                      className={`w-3 h-3 rounded-full transition-all ${index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                        }`}
                     />
                   ))}
                 </div>
@@ -246,9 +249,8 @@ const AuctionDetails = () => {
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                      index === currentImageIndex ? 'border-blue-500' : 'border-gray-200'
-                    }`}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-blue-500' : 'border-gray-200'
+                      }`}
                   >
                     <img
                       src={image}
@@ -295,6 +297,25 @@ const AuctionDetails = () => {
                 ))}
               </div>
             </div>
+
+
+            {/* Q&A Section */}
+            <QASection
+              itemId={auction.id}
+              sellerId={auction.seller.id}
+              currentUser={user}
+            />
+
+            {/* Contact Seller Modal */}
+            <ContactSellerModal
+              isOpen={showContactModal}
+              onClose={() => setShowContactModal(false)}
+              seller={auction.seller}
+              item={auction}
+              onSendMessage={(messageData) => {
+                console.log('Message sent:', messageData);
+              }}
+            />
           </div>
 
           {/* Right Column - Bidding and Details */}
@@ -302,9 +323,8 @@ const AuctionDetails = () => {
             {/* Auction Status Card */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-4">
               <div className="text-center mb-6">
-                <div className={`text-3xl font-bold mb-2 ${
-                  timeLeft === 'Auction Ended' ? 'text-gray-500' : 'text-red-600'
-                }`}>
+                <div className={`text-3xl font-bold mb-2 ${timeLeft === 'Auction Ended' ? 'text-gray-500' : 'text-red-600'
+                  }`}>
                   {timeLeft}
                 </div>
                 <p className="text-gray-600">
@@ -430,11 +450,10 @@ const AuctionDetails = () => {
               <div className="flex space-x-2 mt-4">
                 <button
                   onClick={() => setIsWatched(!isWatched)}
-                  className={`flex-1 flex items-center justify-center py-2 px-4 rounded-lg border transition-colors ${
-                    isWatched 
-                      ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
+                  className={`flex-1 flex items-center justify-center py-2 px-4 rounded-lg border transition-colors ${isWatched
+                      ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'
                       : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   <Heart className={`h-4 w-4 mr-1 ${isWatched ? 'fill-current' : ''}`} />
                   {isWatched ? 'Watching' : 'Watch'}
@@ -511,7 +530,7 @@ const AuctionDetails = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 mr-2" />
@@ -523,12 +542,16 @@ const AuctionDetails = () => {
                   </div>
                 </div>
 
-                <button className="w-full btn-secondary flex items-center justify-center">
+                <button
+                  onClick={() => alert('Messaging feature coming soon!')}
+                  className="w-full btn-secondary flex items-center justify-center"
+                >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Contact Seller
                 </button>
               </div>
             </div>
+
 
             {/* Shipping Information */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
