@@ -27,6 +27,9 @@ import {
 } from 'lucide-react';
 import ContactSellerModal from '../components/messaging/ContactSellerModal';
 import QASection from '../components/messaging/QASection';
+import LiveBiddingPanel from '../components/auction/LiveBiddingPanel';
+import BidHistory from '../components/auction/BidHistory';
+import { useAuction } from '../contexts/AuctionContext';
 
 const AuctionDetails = ({ user }) => {
   const { id } = useParams();
@@ -307,200 +310,23 @@ const AuctionDetails = ({ user }) => {
             />
 
             {/* Contact Seller Modal */}
-            <ContactSellerModal
-              isOpen={showContactModal}
-              onClose={() => setShowContactModal(false)}
-              seller={auction.seller}
-              item={auction}
-              onSendMessage={(messageData) => {
-                console.log('Message sent:', messageData);
-              }}
-            />
+              <ContactSellerModal
+                isOpen={showContactModal}
+                onClose={() => setShowContactModal(false)}
+                seller={auction.seller}
+                item={auction}
+              />
           </div>
 
           {/* Right Column - Bidding and Details */}
           <div className="space-y-6">
             {/* Auction Status Card */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-4">
-              <div className="text-center mb-6">
-                <div className={`text-3xl font-bold mb-2 ${timeLeft === 'Auction Ended' ? 'text-gray-500' : 'text-red-600'
-                  }`}>
-                  {timeLeft}
-                </div>
-                <p className="text-gray-600">
-                  {timeLeft === 'Auction Ended' ? 'This auction has ended' : 'Time remaining'}
-                </p>
-              </div>
+                {/* Live Bidding Panel */}
+            <LiveBiddingPanel auctionId={parseInt(id)} user={user} />
+                
+                {/* Bid History */}
+            <BidHistory auctionId={parseInt(id)} />
 
-              {/* Current Bid */}
-              <div className="text-center mb-6">
-                <div className="text-2xl font-bold text-green-600 mb-1">
-                  {formatPrice(auction.currentBid)}
-                </div>
-                <p className="text-gray-600">Current bid</p>
-                {auction.reserveMet && (
-                  <div className="flex items-center justify-center mt-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
-                    <span className="text-sm text-green-600">Reserve met</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Bidding Actions */}
-              {timeLeft !== 'Auction Ended' && (
-                <div className="space-y-3">
-                  {!showBidForm && !showMaxBidForm && (
-                    <>
-                      <button
-                        onClick={() => setShowBidForm(true)}
-                        className="w-full btn-primary text-lg py-3"
-                      >
-                        <Gavel className="h-5 w-5 mr-2" />
-                        Place Bid
-                      </button>
-                      <button
-                        onClick={() => setShowMaxBidForm(true)}
-                        className="w-full btn-secondary"
-                      >
-                        Set Max Bid
-                      </button>
-                    </>
-                  )}
-
-                  {/* Bid Form */}
-                  {showBidForm && (
-                    <form onSubmit={handleBidSubmit} className="space-y-3">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Your bid (minimum {formatPrice(auction.currentBid + auction.bidIncrement)})
-                        </label>
-                        <div className="relative">
-                          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                          <input
-                            type="number"
-                            value={bidAmount}
-                            onChange={(e) => setBidAmount(e.target.value)}
-                            min={auction.currentBid + auction.bidIncrement}
-                            step={auction.bidIncrement}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => setShowBidForm(false)}
-                          className="flex-1 btn-secondary"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          className="flex-1 btn-primary"
-                        >
-                          Place Bid
-                        </button>
-                      </div>
-                    </form>
-                  )}
-
-                  {/* Max Bid Form */}
-                  {showMaxBidForm && (
-                    <form onSubmit={handleMaxBidSubmit} className="space-y-3">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Maximum bid amount
-                        </label>
-                        <div className="relative">
-                          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                          <input
-                            type="number"
-                            value={maxBidAmount}
-                            onChange={(e) => setMaxBidAmount(e.target.value)}
-                            min={auction.currentBid + auction.bidIncrement}
-                            step={auction.bidIncrement}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">
-                          We'll automatically bid up to this amount for you
-                        </p>
-                      </div>
-                      <div className="flex space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => setShowMaxBidForm(false)}
-                          className="flex-1 btn-secondary"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          className="flex-1 btn-primary"
-                        >
-                          Set Max Bid
-                        </button>
-                      </div>
-                    </form>
-                  )}
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex space-x-2 mt-4">
-                <button
-                  onClick={() => setIsWatched(!isWatched)}
-                  className={`flex-1 flex items-center justify-center py-2 px-4 rounded-lg border transition-colors ${isWatched
-                      ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'
-                      : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
-                    }`}
-                >
-                  <Heart className={`h-4 w-4 mr-1 ${isWatched ? 'fill-current' : ''}`} />
-                  {isWatched ? 'Watching' : 'Watch'}
-                </button>
-                <button className="flex items-center justify-center py-2 px-4 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors">
-                  <Share2 className="h-4 w-4" />
-                </button>
-                <button className="flex items-center justify-center py-2 px-4 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors">
-                  <Flag className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Auction Statistics */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Auction Statistics</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Users className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-gray-600">Bids</span>
-                  </div>
-                  <span className="font-semibold">{auction.bidCount}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Heart className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-gray-600">Watchers</span>
-                  </div>
-                  <span className="font-semibold">{auction.watchCount}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Eye className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-gray-600">Views</span>
-                  </div>
-                  <span className="font-semibold">{auction.viewCount.toLocaleString()}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-gray-600">Starting bid</span>
-                  </div>
-                  <span className="font-semibold">{formatPrice(auction.startingBid)}</span>
-                </div>
-              </div>
-            </div>
 
             {/* Seller Information */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -542,8 +368,8 @@ const AuctionDetails = ({ user }) => {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => alert('Messaging feature coming soon!')}
+                <button 
+                  onClick={() => setShowContactModal(true)}
                   className="w-full btn-secondary flex items-center justify-center"
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
