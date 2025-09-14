@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Search, Menu, X, Heart, Bell, Gavel, User, Package, MessageSquare } from 'lucide-react'; 
 import { useMessaging } from '../../contexts/MessagingContext';
+import AuctionNotifications from '../auction/AuctionNotifications';
 
 
 
@@ -115,27 +116,19 @@ const Navbar = ({ user, onAuthClick, onLogout }) => {
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 <>
-                  <Link
-                    to="/messages"
-                    className="relative p-2 text-secondary-600 hover:text-primary-600 transition-colors"
-                    title="Messages"
-                  >
-                    <MessageSquare className="h-6 w-6" />
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                        {unreadCount}
-                      </span>
-                    )}
-                  </Link>
-                  <button 
-                    className="relative p-2 text-secondary-600 hover:text-primary-600 transition-colors"
-                    title="Notifications"
-                  >
-                    <Bell className="h-6 w-6" />
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      7
-                    </span>
-                  </button>
+                    <Link
+                      to="/messages"
+                      className="relative p-2 text-secondary-600 hover:text-primary-600 transition-colors"
+                      title="Messages"
+                    >
+                      <MessageSquare className="h-6 w-6" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </Link>
+                    <AuctionNotifications />
                   <div className="relative group">
                     <button className="flex items-center space-x-2 p-2 text-secondary-600 hover:text-primary-600 transition-colors">
                       {user.avatar ? (
