@@ -17,6 +17,47 @@ export const MessagingProvider = ({ children }) => {
 
   
   useEffect(() => {
+    const loadPersistedData = () => {
+      try {
+        const savedConversations = JSON.parse(localStorage.getItem('bidtreasure_conversations') || '[]');
+        const savedNotifications = JSON.parse(localStorage.getItem('bidtreasure_notifications') || '[]');
+        
+        if (savedConversations.length > 0) {
+          setConversations(savedConversations);
+          const totalUnread = savedConversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+          setUnreadCount(totalUnread);
+        } else {
+          
+          initializeMockData();
+        }
+        
+        if (savedNotifications.length > 0) {
+          setNotifications(savedNotifications);
+        }
+      } catch (error) {
+        console.error('Error loading persisted messaging data:', error);
+        initializeMockData();
+      }
+    };
+
+    loadPersistedData();
+  }, []);
+
+  
+  useEffect(() => {
+    if (conversations.length > 0) {
+      localStorage.setItem('bidtreasure_conversations', JSON.stringify(conversations));
+    }
+  }, [conversations]);
+
+  
+  useEffect(() => {
+    if (notifications.length > 0) {
+      localStorage.setItem('bidtreasure_notifications', JSON.stringify(notifications));
+    }
+  }, [notifications]);
+
+  const initializeMockData = () => {
     const mockConversations = [
       {
         id: 1,
@@ -78,14 +119,12 @@ export const MessagingProvider = ({ children }) => {
     ];
 
     setConversations(mockConversations);
-    
-    
     const totalUnread = mockConversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
     setUnreadCount(totalUnread);
-  }, []);
+  };
 
   
-  const findOrCreateConversation = (participantId, participantName, itemId, itemTitle, itemImage) => {
+  const findOrCreateConversation = (participantId, participantName, itemId, itemTitle, itemImage, participantAvatar = null) => {
     
     let existingConversation = conversations.find(conv => 
       conv.participantId === participantId && conv.itemId === itemId
@@ -100,8 +139,8 @@ export const MessagingProvider = ({ children }) => {
       id: Date.now(),
       participantId,
       participantName,
-      participantAvatar: `https://ui-avatars.com/api/?name=${participantName}&background=random`,
-      participantRating: 4.5, 
+      participantAvatar: participantAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(participantName)}&background=random`,
+      participantRating: 4.5,
       itemId,
       itemTitle,
       itemImage,
@@ -115,25 +154,31 @@ export const MessagingProvider = ({ children }) => {
       messages: []
     };
 
-    setConversations(prev => [newConversation, ...prev]);
+    setConversations(prev => {
+      const updated = [newConversation, ...prev];
+      return updated;
+    });
+    
     return newConversation;
   };
 
   
-  const sendMessage = (conversationId, messageContent, messageType = 'text') => {
+  const sendMessage = (conversationId, messageContent, messageType = 'text', fileData = null) => {
     const newMessage = {
-      id: `msg_${Date.now()}`,
+      id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       conversationId,
       senderId: 'current_user',
       senderName: 'You',
       content: messageContent,
       timestamp: new Date().toISOString(),
       type: messageType,
-      isRead: false
+      isRead: false,
+      ...fileData 
     };
 
     setConversations(prev => prev.map(conv => {
       if (conv.id === conversationId) {
+        const updatedMessages = [...(conv.messages || []), newMessage];
         return {
           ...conv,
           lastMessage: {
@@ -143,7 +188,7 @@ export const MessagingProvider = ({ children }) => {
             senderId: 'current_user',
             isRead: false
           },
-          messages: [...(conv.messages || []), newMessage]
+          messages: updatedMessages
         };
       }
       return conv;
@@ -154,7 +199,7 @@ export const MessagingProvider = ({ children }) => {
 
   
   const sendContactMessage = (messageData) => {
-    const { recipientId, recipientName, itemId, itemTitle, itemImage, content, reason } = messageData;
+    const { recipientId, recipientName, itemId, itemTitle, itemImage, content, reason, recipientAvatar } = messageData;
     
     
     const conversation = findOrCreateConversation(
@@ -162,7 +207,8 @@ export const MessagingProvider = ({ children }) => {
       recipientName, 
       itemId, 
       itemTitle, 
-      itemImage
+      itemImage,
+      recipientAvatar
     );
 
     
@@ -181,7 +227,10 @@ export const MessagingProvider = ({ children }) => {
       conversationId: conversation.id
     };
 
-    setNotifications(prev => [notification, ...prev]);
+    setNotifications(prev => {
+      const updated = [notification, ...prev.slice(0, 19)]; 
+      return updated;
+    });
 
     return { conversation, message };
   };
@@ -190,15 +239,91 @@ export const MessagingProvider = ({ children }) => {
   const markConversationAsRead = (conversationId) => {
     setConversations(prev => prev.map(conv => {
       if (conv.id === conversationId && conv.unreadCount > 0) {
-        setUnreadCount(current => current - conv.unreadCount);
+        const unreadReduction = conv.unreadCount;
+        setUnreadCount(current => Math.max(0, current - unreadReduction));
+        
+        
+        const updatedMessages = conv.messages?.map(msg => ({ ...msg, isRead: true })) || [];
+        
         return {
           ...conv,
           unreadCount: 0,
-          lastMessage: conv.lastMessage ? { ...conv.lastMessage, isRead: true } : null
+          lastMessage: conv.lastMessage ? { ...conv.lastMessage, isRead: true } : null,
+          messages: updatedMessages
         };
       }
       return conv;
     }));
+  };
+
+  
+  const addMessageToConversation = (conversationId, messageData) => {
+    setConversations(prev => prev.map(conv => {
+      if (conv.id === conversationId) {
+        const updatedMessages = [...(conv.messages || []), messageData];
+        const newUnreadCount = messageData.senderId !== 'current_user' ? conv.unreadCount + 1 : conv.unreadCount;
+        
+        if (messageData.senderId !== 'current_user') {
+          setUnreadCount(current => current + 1);
+        }
+        
+        return {
+          ...conv,
+          lastMessage: {
+            id: messageData.id,
+            content: messageData.content,
+            timestamp: messageData.timestamp,
+            senderId: messageData.senderId,
+            isRead: messageData.senderId === 'current_user'
+          },
+          messages: updatedMessages,
+          unreadCount: newUnreadCount
+        };
+      }
+      return conv;
+    }));
+  };
+
+  
+  const toggleStarConversation = (conversationId) => {
+    setConversations(prev => prev.map(conv => 
+      conv.id === conversationId 
+        ? { ...conv, isStarred: !conv.isStarred }
+        : conv
+    ));
+  };
+
+  
+  const archiveConversation = (conversationId) => {
+    setConversations(prev => prev.map(conv => 
+      conv.id === conversationId 
+        ? { ...conv, isArchived: true }
+        : conv
+    ));
+  };
+
+  
+  const deleteConversation = (conversationId) => {
+    setConversations(prev => {
+      const conversationToDelete = prev.find(conv => conv.id === conversationId);
+      if (conversationToDelete && conversationToDelete.unreadCount > 0) {
+        setUnreadCount(current => Math.max(0, current - conversationToDelete.unreadCount));
+      }
+      return prev.filter(conv => conv.id !== conversationId);
+    });
+  };
+
+  
+  const markNotificationAsRead = (notificationId) => {
+    setNotifications(prev => prev.map(notif => 
+      notif.id === notificationId ? { ...notif, isRead: true } : notif
+    ));
+  };
+
+  
+  const clearAllNotifications = () => {
+    setNotifications([]);
+    localStorage.removeItem('bidtreasure_notifications');
   };
 
   
@@ -212,6 +337,15 @@ export const MessagingProvider = ({ children }) => {
     return conversation?.messages || [];
   };
 
+  const restoreConversation = (conversationId) => {
+    setConversations(prev => prev.map(conv => 
+      conv.id === conversationId 
+        ? { ...conv, isArchived: false }
+        : conv
+    ));
+  };
+
+
   const value = {
     conversations,
     notifications,
@@ -222,6 +356,13 @@ export const MessagingProvider = ({ children }) => {
     findOrCreateConversation,
     getConversation,
     getMessages,
+    addMessageToConversation,
+    toggleStarConversation,
+    archiveConversation,
+    restoreConversation, 
+    deleteConversation,
+    markNotificationAsRead,
+    clearAllNotifications,
     setConversations,
     setNotifications,
     setUnreadCount
