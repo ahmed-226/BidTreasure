@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMessaging } from '../../contexts/MessagingContext'; 
+import { useMessaging } from '../../contexts/MessagingContext';
 import { 
   X, 
   MessageCircle, 
@@ -12,11 +12,11 @@ import {
   Phone,
   Mail
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 
-const ContactSellerModal = ({ isOpen, onClose, seller, item, onSendMessage }) => {
-  const navigate = useNavigate(); 
-  const { sendContactMessage } = useMessaging(); 
+const ContactSellerModal = ({ isOpen, onClose, seller, item }) => {
+  const navigate = useNavigate();
+  const { sendContactMessage } = useMessaging();
   const [message, setMessage] = useState('');
   const [contactReason, setContactReason] = useState('general_inquiry');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,42 +56,49 @@ const ContactSellerModal = ({ isOpen, onClose, seller, item, onSendMessage }) =>
     setIsSubmitting(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       const messageData = {
-        recipientId: seller.id,
-        recipientName: seller.name || seller.displayName,
+        recipientId: seller.id || seller.userId,
+        recipientName: seller.name || seller.displayName || seller.username,
+        recipientAvatar: seller.avatar,
         itemId: item.id,
         itemTitle: item.title,
-        itemImage: item.image || item.images?.[0],
+        itemImage: item.image || item.images?.[0] || item.thumbnail,
         content: message,
         reason: contactReason
       };
 
+      
       const result = sendContactMessage(messageData);
       
-      if (onSendMessage) {
-        onSendMessage(messageData);
-      }
-
+      console.log('Message sent successfully:', result);
+      
       setShowSuccess(true);
+      
       
       setTimeout(() => {
         setShowSuccess(false);
         onClose();
         setMessage('');
         setContactReason('general_inquiry');
-        
         navigate('/messages');
       }, 2000);
       
     } catch (error) {
       console.error('Error sending message:', error);
+      alert('Failed to send message. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  
+  React.useEffect(() => {
+    if (isOpen && !message) {
+      setMessage(messageTemplates.general_inquiry);
+    }
+  }, [isOpen, item?.title]);
 
   if (!isOpen) return null;
 
@@ -116,7 +123,11 @@ const ContactSellerModal = ({ isOpen, onClose, seller, item, onSendMessage }) =>
           <div className="p-8 text-center">
             <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Message Sent!</h3>
-            <p className="text-gray-600 mb-4">Your message has been sent to the seller. Redirecting to messages...</p>
+            <p className="text-gray-600 mb-4">
+              Your message has been sent to {seller?.name || seller?.displayName}. 
+              Redirecting to messages...
+            </p>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
           </div>
         ) : (
           <div className="p-6">
@@ -124,9 +135,17 @@ const ContactSellerModal = ({ isOpen, onClose, seller, item, onSendMessage }) =>
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold text-xl">
-                    {seller?.name?.charAt(0) || seller?.displayName?.charAt(0) || 'S'}
-                  </span>
+                  {seller?.avatar ? (
+                    <img
+                      src={seller.avatar}
+                      alt={seller.name || seller.displayName}
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-white font-semibold text-xl">
+                      {(seller?.name || seller?.displayName || 'S').charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center">
@@ -165,15 +184,15 @@ const ContactSellerModal = ({ isOpen, onClose, seller, item, onSendMessage }) =>
               <h4 className="font-medium text-gray-900 mb-3">About this item:</h4>
               <div className="flex items-center space-x-4">
                 <img
-                  src={item?.image || item?.images?.[0]}
+                  src={item?.image || item?.images?.[0] || item?.thumbnail || 'https://via.placeholder.com/64'}
                   alt={item?.title}
                   className="w-16 h-16 rounded-lg object-cover"
                 />
                 <div className="flex-1">
                   <h5 className="font-medium text-gray-900">{item?.title}</h5>
                   <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                    <span>Current Bid: ${item?.currentBid?.toLocaleString()}</span>
-                    <span>{item?.timeLeft} left</span>
+                    <span>Current Bid: ${item?.currentBid?.toLocaleString() || item?.price?.toLocaleString() || 'N/A'}</span>
+                    <span>{item?.timeLeft || item?.endTime || 'Auction active'}</span>
                   </div>
                 </div>
               </div>
