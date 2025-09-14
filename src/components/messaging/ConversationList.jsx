@@ -3,6 +3,7 @@ import {
   Star, 
   Clock, 
   Archive, 
+  ArchiveRestore,
   Trash2, 
   MoreHorizontal, 
   Package,
@@ -10,7 +11,6 @@ import {
   CheckCircle2,
   Circle
 } from 'lucide-react';
-
 const ConversationList = ({ 
   conversations, 
   activeConversation, 
@@ -18,7 +18,8 @@ const ConversationList = ({
   onStarConversation,
   onArchiveConversation,
   onDeleteConversation,
-  isLoading 
+  isLoading,
+  showArchived = false 
 }) => {
   const [hoveredConversation, setHoveredConversation] = useState(null);
   const [showDropdown, setShowDropdown] = useState(null);
@@ -221,8 +222,17 @@ const ConversationList = ({
                         }}
                         className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                       >
-                        <Archive className="h-4 w-4 mr-2" />
-                        Archive
+                        {showArchived ? (
+                          <>
+                            <ArchiveRestore className="h-4 w-4 mr-2" />
+                            Restore
+                          </>
+                        ) : (
+                          <>
+                            <Archive className="h-4 w-4 mr-2" />
+                            Archive
+                          </>
+                        )}
                       </button>
                       <button
                         onClick={(e) => {
