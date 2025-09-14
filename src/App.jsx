@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { MessagingProvider } from './contexts/MessagingContext'; 
+import { MessagingProvider } from './contexts/MessagingContext';
+import { AuctionProvider } from './contexts/AuctionContext'; 
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Homepage from './pages/Homepage';
@@ -66,56 +67,58 @@ function App() {
   }
 
   return (
-    <MessagingProvider> {/* Wrap everything in MessagingProvider */}
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Navbar 
-            user={user} 
-            onAuthClick={handleAuthClick}
-            onLogout={handleLogout}
-          />
-          
-          <Routes>
-            <Route path="/" element={<Homepage />} />
-            <Route path="/search" element={<SearchResults />} />
-            <Route path="/auction/:id" element={<AuctionDetails user={user} />} />
-            <Route path="/sell" element={<SellPage />} />
-            <Route 
-              path="/messages" 
-              element={
-                user ? (
-                  <MessagesPage user={user} />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              } 
+    <AuctionProvider> {/* Wrap with AuctionProvider */}
+      <MessagingProvider>
+        <Router>
+          <div className="min-h-screen bg-gray-50">
+            <Navbar 
+              user={user} 
+              onAuthClick={handleAuthClick}
+              onLogout={handleLogout}
             />
-            <Route 
-              path="/dashboard" 
-              element={
-                user ? (
-                  <UserDashboard user={user} />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              } 
-            />
-            <Route 
-              path="/profile" 
-              element={
-                user ? (
-                  <UserProfile user={user} onUpdateUser={handleUpdateUser} />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              } 
-            />
-          </Routes>
-          
-          <Footer />
-        </div>
-      </Router>
-    </MessagingProvider>
+            
+            <Routes>
+              <Route path="/" element={<Homepage />} />
+              <Route path="/search" element={<SearchResults />} />
+              <Route path="/auction/:id" element={<AuctionDetails user={user} />} />
+              <Route path="/sell" element={<SellPage />} />
+              <Route 
+                path="/messages" 
+                element={
+                  user ? (
+                    <MessagesPage user={user} />
+                  ) : (
+                    <Navigate to="/" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/dashboard" 
+                element={
+                  user ? (
+                    <UserDashboard user={user} />
+                  ) : (
+                    <Navigate to="/" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/profile" 
+                element={
+                  user ? (
+                    <UserProfile user={user} onUpdateUser={handleUpdateUser} />
+                  ) : (
+                    <Navigate to="/" replace />
+                  )
+                } 
+              />
+            </Routes>
+            
+            <Footer />
+          </div>
+        </Router>
+      </MessagingProvider>
+    </AuctionProvider>
   );
 }
 
