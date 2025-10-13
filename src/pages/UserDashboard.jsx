@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   BarChart3, 
   Heart, 
@@ -8,6 +8,9 @@ import {
   Settings, 
   CheckCircle,
   DollarSign,
+  Shield,
+  Star,
+  Award
 } from 'lucide-react';
 import DashboardOverview from '../components/dashboard/DashboardOverview';
 import MyBids from '../components/dashboard/MyBids';
@@ -15,8 +18,12 @@ import WonAuctions from '../components/dashboard/WonAuctions';
 import MyListings from '../components/dashboard/MyListings';
 import Watchlist from '../components/dashboard/Watchlist';
 import DashboardSettings from '../components/dashboard/DashboardSettings';
+import FeedbackRatingSystem from '../components/FeedbackRatingSystem';
+import SellerBadges from '../components/SellerBadges';
+import DisputeResolution from '../components/DisputeResolution';
 
 const UserDashboard = ({ user }) => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab') || 'overview';
   const [activeTab, setActiveTab] = useState(tabFromUrl);
@@ -110,6 +117,7 @@ const UserDashboard = ({ user }) => {
     { id: 'won-auctions', label: 'Won Auctions', icon: CheckCircle },
     { id: 'my-listings', label: 'My Listings', icon: Package },
     { id: 'watchlist', label: 'Watchlist', icon: Heart },
+    { id: 'trust', label: 'Trust & Reviews', icon: Shield },
     { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
@@ -244,6 +252,48 @@ const UserDashboard = ({ user }) => {
           )}
           {activeTab === 'watchlist' && (
             <Watchlist formatPrice={formatPrice} />
+          )}
+          {activeTab === 'trust' && (
+            <div className="space-y-8">
+              {/* Seller Badges Overview */}
+              <SellerBadges sellerId={user?.id} displayMode="full" />
+              
+              {/* Reviews Section */}
+              <FeedbackRatingSystem 
+                sellerId={user?.id} 
+                currentUser={user} 
+                mode="can-review" 
+              />
+              
+              {/* Disputes Section */}
+              <DisputeResolution 
+                userType="buyer" 
+                userId={user?.id} 
+              />
+
+              {/* Verification CTA */}
+              {!user?.isVerified && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                  <div className="flex items-start">
+                    <Shield className="h-6 w-6 text-blue-600 mr-3 mt-1" />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                        Get Verified to Build Trust
+                      </h3>
+                      <p className="text-blue-700 mb-4">
+                        Verified sellers get more bids, higher final prices, and increased buyer confidence.
+                      </p>
+                      <button
+                        onClick={() => navigate('/seller-verification')}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        Start Verification Process
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
           {activeTab === 'settings' && (
             <DashboardSettings user={user} />

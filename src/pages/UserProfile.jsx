@@ -18,14 +18,22 @@ import {
   Package,
   DollarSign,
   TrendingUp,
-  Users 
+  Users ,
+  AlertCircle,  
+  Save,         
+  X,            
+  EyeOff        
 } from 'lucide-react';
+import SellerBadges from '../components/SellerBadges';
+import TrustScoreCalculator from '../components/TrustScoreCalculator';
+import { useNavigate } from 'react-router-dom'; 
 
 const UserProfile = ({ user, onUpdateUser }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
@@ -197,148 +205,164 @@ const UserProfile = ({ user, onUpdateUser }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Profile Header */}
         <div className="card p-8 lg:p-12 mb-8">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center space-y-8 lg:space-y-0 lg:space-x-12">
-            {/* Avatar Section */}
-            <div className="relative">
-              <div className="w-40 h-40 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                {avatarPreview ? (
-                  <img
-                    src={avatarPreview}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="h-20 w-20 text-gray-400" />
-                )}
-              </div>
-              
-              {isEditing && (
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-2 right-2 bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-colors shadow-lg"
-                >
-                  <Camera className="h-5 w-5" />
-                </button>
-              )}
-              
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="hidden"
+          <div className="flex flex-col lg:flex-row items-start  space-y-8 lg:space-y-0 lg:space-x-12">
+        {/* Avatar Section */}
+        <div className="relative flex flex-col items-start">
+          <div className="w-40 h-40 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center mb-6">
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Profile"
+                className="w-full h-full object-cover"
               />
-              
-              {errors.avatar && (
-                <p className="text-red-600 text-sm mt-2">{errors.avatar}</p>
-              )}
+            ) : (
+              <User className="h-20 w-20 text-gray-400" />
+            )}
+          </div>
+          
+          {isEditing && (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute top-32 right-2 bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-colors shadow-lg"
+            >
+              <Camera className="h-5 w-5" />
+            </button>
+          )}
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleAvatarChange}
+            className="hidden"
+          />
+          
+          {errors.avatar && (
+            <p className="text-red-600 text-sm mt-2">{errors.avatar}</p>
+          )}
+
+          {/* Action Buttons - Moved here and arranged vertically */}
+          <div className="flex flex-col gap-3 w-full">
+            {!isEditing ? (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="btn-primary flex items-center justify-center px-4 py-2 text-sm w-full"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Profile
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={handleSaveProfile}
+                  disabled={isLoading}
+                  className="btn-primary flex items-center justify-center disabled:opacity-50 px-4 py-2 text-sm w-full"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Changes
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setFormData({
+                      firstName: user?.firstName || '',
+                      lastName: user?.lastName || '',
+                      email: user?.email || '',
+                      phone: user?.phone || '',
+                      bio: user?.bio || '',
+                      location: user?.location || '',
+                      website: user?.website || ''
+                    });
+                    setAvatarPreview(user?.avatar || null);
+                    setErrors({});
+                  }}
+                  className="btn-secondary flex items-center justify-center px-4 py-2 text-sm w-full"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Cancel
+                </button>
+              </>
+            )}
+            
+            {!userStats.verified && (
+              <button
+                onClick={handleVerifyAccount}
+                className="btn-secondary flex items-center justify-center px-4 py-2 text-sm w-full"
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Verify Account
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* User Info */}
+        <div className="flex-1">
+          {/* Remove the old action buttons section that was here */}
+          {/* 1. User Name and Verified Badge */}
+          <div className="flex items-center space-x-3 mb-3">
+            <h1 className="text-4xl font-bold text-gray-900">
+              {user?.firstName} {user?.lastName}
+            </h1>
+            {userStats.verified && (
+              <CheckCircle className="h-8 w-8 text-green-500" title="Verified Account" />
+            )}
+          </div>
+          
+          {/* 2. Rating and Member Since */}
+          <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-6">
+            <div className="flex items-center">
+              <Star className="h-5 w-5 text-yellow-500 mr-2" />
+              <span className="text-lg">{userStats.rating} ({userStats.reviewCount} reviews)</span>
             </div>
-
-            {/* User Info */}
-            <div className="flex-1">
-              <div className="flex items-center space-x-3 mb-3">
-                <h1 className="text-4xl font-bold text-gray-900">
-                  {user?.firstName} {user?.lastName}
-                </h1>
-                {userStats.verified && (
-                  <CheckCircle className="h-8 w-8 text-green-500" title="Verified Account" />
-                )}
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-6">
-                <div className="flex items-center">
-                  <Star className="h-5 w-5 text-yellow-500 mr-2" />
-                  <span className="text-lg">{userStats.rating} ({userStats.reviewCount} reviews)</span>
-                </div>
-                <div className="flex items-center">
-                  <Calendar className="h-5 w-5 mr-2" />
-                  <span className="text-lg">Member since {new Date(userStats.memberSince).toLocaleDateString()}</span>
-                </div>
-              </div>
-
-              {/* User Stats */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-3xl font-bold text-blue-600">{userStats.totalBids}</div>
-                  <div className="text-sm text-gray-600 mt-1">Total Bids</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-3xl font-bold text-green-600">{userStats.itemsWon}</div>
-                  <div className="text-sm text-gray-600 mt-1">Items Won</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-3xl font-bold text-blue-600">{userStats.itemsSold}</div>
-                  <div className="text-sm text-gray-600 mt-1">Items Sold</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-3xl font-bold text-purple-600">{userStats.rating}</div>
-                  <div className="text-sm text-gray-600 mt-1">Rating</div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4">
-                {!isEditing ? (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="btn-primary flex items-center px-6 py-3 text-lg"
-                  >
-                    <Edit className="h-5 w-5 mr-2" />
-                    Edit Profile
-                  </button>
-                ) : (
-                  <div className="flex space-x-4">
-                    <button
-                      onClick={handleSaveProfile}
-                      disabled={isLoading}
-                      className="btn-primary flex items-center disabled:opacity-50 px-6 py-3 text-lg"
-                    >
-                      {isLoading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="h-5 w-5 mr-2" />
-                          Save Changes
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsEditing(false);
-                        setFormData({
-                          firstName: user?.firstName || '',
-                          lastName: user?.lastName || '',
-                          email: user?.email || '',
-                          phone: user?.phone || '',
-                          bio: user?.bio || '',
-                          location: user?.location || '',
-                          website: user?.website || ''
-                        });
-                        setAvatarPreview(user?.avatar || null);
-                        setErrors({});
-                      }}
-                      className="btn-secondary flex items-center px-6 py-3 text-lg"
-                    >
-                      <X className="h-5 w-5 mr-2" />
-                      Cancel
-                    </button>
-                  </div>
-                )}
-                
-                {!userStats.verified && (
-                  <button
-                    onClick={handleVerifyAccount}
-                    className="btn-secondary flex items-center px-6 py-3 text-lg"
-                  >
-                    <Shield className="h-5 w-5 mr-2" />
-                    Verify Account
-                  </button>
-                )}
-              </div>
+            <div className="flex items-center">
+              <Calendar className="h-5 w-5 mr-2" />
+              <span className="text-lg">Member since {new Date(userStats.memberSince).toLocaleDateString()}</span>
             </div>
+          </div>
+
+          {/* 3. User Stats */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-3xl font-bold text-blue-600">{userStats.totalBids}</div>
+              <div className="text-sm text-gray-600 mt-1">Total Bids</div>
+            </div>
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-3xl font-bold text-green-600">{userStats.itemsWon}</div>
+              <div className="text-sm text-gray-600 mt-1">Items Won</div>
+            </div>
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-3xl font-bold text-blue-600">{userStats.itemsSold}</div>
+              <div className="text-sm text-gray-600 mt-1">Items Sold</div>
+            </div>
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-3xl font-bold text-purple-600">{userStats.rating}</div>
+              <div className="text-sm text-gray-600 mt-1">Rating</div>
+            </div>
+          </div>
+
+          {/* 4. Trust & Verification Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            {/* Trust Score */}
+            <div>
+              <TrustScoreCalculator sellerId={user?.id} />
+            </div>
+            
+            {/* Seller Badges */}
+            <div className="lg:col-span-2">
+              <SellerBadges sellerId={user?.id} displayMode="full" />
+            </div>
+          </div>
+        </div>
           </div>
         </div>
 

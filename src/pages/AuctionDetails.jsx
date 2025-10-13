@@ -30,6 +30,7 @@ import QASection from '../components/messaging/QASection';
 import LiveBiddingPanel from '../components/auction/LiveBiddingPanel';
 import BidHistory from '../components/auction/BidHistory';
 import { useAuction } from '../contexts/AuctionContext';
+import SellerBadges from '../components/SellerBadges';
 
 const AuctionDetails = ({ user }) => {
   const { id } = useParams();
@@ -353,6 +354,9 @@ const AuctionDetails = ({ user }) => {
                       <span className="text-sm text-gray-600">
                         {auction.seller.rating} ({auction.seller.feedbackCount} reviews)
                       </span>
+                    </div>
+                    <div className="mt-2">
+                      <SellerBadges sellerId={auction.sellerId} displayMode="compact" />
                     </div>
                   </div>
                 </div>

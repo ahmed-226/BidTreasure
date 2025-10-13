@@ -224,12 +224,6 @@ const ChatWindow = ({ conversation, currentUser }) => {
           
           <div className="flex items-center space-x-2">
             <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
-              <Phone className="h-4 w-4" />
-            </button>
-            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
-              <Video className="h-4 w-4" />
-            </button>
-            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
               <Info className="h-4 w-4" />
             </button>
             <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">

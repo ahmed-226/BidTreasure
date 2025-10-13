@@ -129,6 +129,12 @@ const Navbar = ({ user, onAuthClick, onLogout }) => {
                       )}
                     </Link>
                     <AuctionNotifications />
+                    <Link
+                      to="/seller-verification"
+                      className="text-secondary-700 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors"
+                    >
+                      Verification
+                    </Link>
                   <div className="relative group">
                     <button className="flex items-center space-x-2 p-2 text-secondary-600 hover:text-primary-600 transition-colors">
                       {user.avatar ? (

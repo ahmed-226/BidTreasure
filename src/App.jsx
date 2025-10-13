@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { MessagingProvider } from './contexts/MessagingContext';
 import { AuctionProvider } from './contexts/AuctionContext'; 
 import Navbar from './components/layout/Navbar';
@@ -12,6 +12,20 @@ import AuctionDetails from './pages/AuctionDetails';
 import AuthContainer from './components/auth/AuthContainer';
 import SellPage from './pages/SellPage';
 import MessagesPage from './pages/MessagesPage';
+import SellerVerification from './components/SellerVerification';
+import FeedbackRatingSystem from './components/FeedbackRatingSystem';
+import DisputeResolution from './components/DisputeResolution';
+
+const SellerReviewsWrapper = ({ user }) => {
+  const { sellerId } = useParams();
+  return (
+    <FeedbackRatingSystem 
+      sellerId={sellerId} 
+      currentUser={user} 
+      mode="view" 
+    />
+  );
+};
 
 function App() {
   const [user, setUser] = useState({
@@ -67,7 +81,7 @@ function App() {
   }
 
   return (
-    <AuctionProvider> {/* Wrap with AuctionProvider */}
+    <AuctionProvider>
       <MessagingProvider>
         <Router>
           <div className="min-h-screen bg-gray-50">
@@ -110,6 +124,28 @@ function App() {
                   ) : (
                     <Navigate to="/" replace />
                   )
+                } 
+              />
+              <Route 
+                path="/seller-verification" 
+                element={
+                  <SellerVerification 
+                    user={user} 
+                    onVerificationComplete={(data) => console.log('Verification completed:', data)} 
+                  />
+                } 
+              />
+              <Route 
+                path="/seller/:sellerId/reviews" 
+                element={<SellerReviewsWrapper user={user} />} 
+              />
+              <Route 
+                path="/disputes" 
+                element={
+                  <DisputeResolution 
+                    userType="buyer" 
+                    userId={user?.id} 
+                  />
                 } 
               />
             </Routes>
